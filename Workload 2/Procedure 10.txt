@@ -1,0 +1,29 @@
+Procedure 10
+##################
+We transformed this procedure from TPC-DS benchmark query# 55. We include a loop region to create this procedure.
+######################################
+i = 1982, k = 2001
+ define YEAR= random(1998, 2002, uniform);
+ define MONTH=random(11,12,uniform);
+ define MANAGER=random(1,100,uniform); 
+ define _LIMIT=100;
+
+CREATE PROCEDURE PT_10(IN INT i, IN INT k)
+AS BEGIN
+	DECLARE n INT := i;
+	WHILE i < k DO
+		v_t=[_LIMITA]  select [_LIMITB] i_brand_id brand_id, i_brand brand,
+				sum(ss_ext_sales_price) ext_price
+			 from date_dim, store_sales, item
+			 where d_date_sk = ss_sold_date_sk
+				and ss_item_sk = i_item_sk
+				and i_manager_id=[MANAGER]
+				and d_moy=[MONTH]
+				and d_year=between n and i
+			 group by i_brand, i_brand_id
+			 order by ext_price desc, i_brand_id
+			[_LIMITC] ;
+		  i = i + 1;
+	END WHILE;
+	select count(*) from v_t;
+END;

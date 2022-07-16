@@ -1,0 +1,30 @@
+Workload # 3
+Procedure # 2
+#############################
+Get trade information for the first N trades of a given customer account from a given point in time
+
+Parameters:
+customer account, <T_CA_ID> = 43000002061
+Initial Trade Id (m): 200000000000001 
+Maximum Trade Id (n): 200000000000110
+the time is between 2005-03-11 (<T_DTS_L>) and 2005-03-14 (<T_DTS_U>)
+
+
+###################################################
+
+CREATE OR REPLACE PROCEDURE w3_p2(IN m BIGINT, IN n BIGINT)
+AS BEGIN
+DECLARE i BIGINT := m;
+DECLARE k BIGINT := n;
+select T_BID_PRICE, T_EXEC_NAME, T_IS_CASH, T_ID, T_TRADE_PRICE from TRADE where T_CA_ID = <T_CA_ID> and T_DTS >= <T_DTS_L> and T_DTS <= <T_DTS_U> order by T_DTS asc;
+WHILE i < k DO
+   select SE_AMT, SE_CASH_DUE_DATE, SE_CASH_TYPE from SETTLEMENT where SE_T_ID = i;
+   if i > 0 then
+   	select CT_AMT, CT_DTS, CT_NAME from CASH_TRANSACTION where CT_T_ID = i;
+   END IF;
+   results= select TH_DTS, TH_ST_ID from TRADE_HISTORY where TH_T_ID = i order by TH_DTS;
+   i = i + 1;
+END WHILE;
+result = SELECT count(*) cnt FROM results ;
+SELECT * FROM :result;
+END;

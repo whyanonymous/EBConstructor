@@ -1,0 +1,16 @@
+Procedure 1
+##################
+We transformed this procedure from TPC-DS benchmark query# 3. We include a loop region to create this procedure.
+######################################
+# i = 109, k 128
+# mon = 11
+#########################
+CREATE PROCEDURE PT_1(IN INT i, IN INT k, IN INT mon)
+AS BEGIN
+	DECLARE n INT := i;
+	WHILE i < k DO
+		v_t = select dt.d_year,i.i_brand_id brand_id, i.i_brand brand,sum(ss_ext_sales_price) sum_agg from date_dim dt, store_sales vs, item i where dt.d_date_sk = vs.ss_sold_date_sk and vs.ss_item_sk = i.i_item_sk and i.i_manufact_id between n and i and dt.d_moy= mon group by dt.d_year,i.i_brand,i.i_brand_id order by dt.d_year,sum_agg desc,brand_id;
+		i = i + 1;
+	END WHILE;
+	select count(*) from v_t;
+END;
